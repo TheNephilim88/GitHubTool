@@ -2,13 +2,16 @@ package com.reneph.githubtool.activity;
 
 import android.app.ProgressDialog;
 import android.content.Context;
+import android.content.Intent;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.view.KeyEvent;
 import android.view.View;
+import android.view.inputmethod.EditorInfo;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.TextView;
@@ -23,6 +26,7 @@ import com.reneph.githubtool.adapter.RepositoryAdapter;
 import com.reneph.githubtool.data.RepositoryData;
 import com.reneph.githubtool.util.GitHubClient;
 import com.reneph.githubtool.util.JSONUtil;
+import com.reneph.githubtool.util.KeyboardUtil;
 import com.reneph.githubtool.widget.DividerItemDecoration;
 
 import org.json.JSONArray;
@@ -32,11 +36,13 @@ import org.json.JSONObject;
 import java.util.ArrayList;
 import java.util.List;
 
-public class MainActivity extends AppCompatActivity implements View.OnClickListener {
+public class MainActivity extends AppCompatActivity implements View.OnClickListener, RepositoryAdapter.OnItemClickListener, Response.ErrorListener, TextView.OnEditorActionListener {
     private EditText mSearchField;
     private TextView mEmptyView;
     private List<RepositoryData> mRepositoryListing;
     private RepositoryAdapter mRepositoryAdapter;
+    private ProgressDialog progressDialog;
+    private ImageButton mSearchRepositories;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -44,6 +50,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         setContentView(R.layout.activity_main);
 
         mSearchField = (EditText) findViewById(R.id.search_field);
+        mSearchField.setOnEditorActionListener(this);
 
         RecyclerView listRepositories = (RecyclerView) findViewById(R.id.list_repositories);
         listRepositories.setLayoutManager(new LinearLayoutManager(this));
@@ -51,11 +58,11 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
         mEmptyView = (TextView) findViewById(android.R.id.empty);
 
-        ImageButton mSearchRepositories = (ImageButton) findViewById(R.id.search_repositories);
+        mSearchRepositories = (ImageButton) findViewById(R.id.search_repositories);
         mSearchRepositories.setOnClickListener(this);
 
         mRepositoryListing = new ArrayList<>();
-        mRepositoryAdapter = new RepositoryAdapter(mRepositoryListing, this);
+        mRepositoryAdapter = new RepositoryAdapter(mRepositoryListing, this, this);
 
         listRepositories.setAdapter(mRepositoryAdapter);
         updateEmptyView();
@@ -65,6 +72,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     public void onClick(View v) {
         switch (v.getId()) {
             case R.id.search_repositories:
+                KeyboardUtil.hideKeyboard(this, this);
                 mRepositoryListing.clear();
 
                 ConnectivityManager connectivityManager = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
@@ -73,13 +81,13 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 if (!((activeNetwork != null) && (activeNetwork.isConnectedOrConnecting()))) { // show error message if no internet connection is available
                     Toast.makeText(this, R.string.error_no_internet_connection, Toast.LENGTH_LONG).show();
                 } else { // start fetching & parsing if internet connection is available
-                    final ProgressDialog progressDialog = new ProgressDialog(this);
+                    progressDialog = new ProgressDialog(this);
                     progressDialog.setCancelable(false);
                     progressDialog.setMessage(getString(R.string.loading_indicator));
                     progressDialog.show();
 
                     JsonObjectRequest repositoriesRequest = new JsonObjectRequest(Request.Method.GET,
-                            JSONUtil.buildQueryURI(mSearchField.getText().toString()),
+                            JSONUtil.buildSearchQueryURI(mSearchField.getText().toString()),
                             null,
                             new Response.Listener<JSONObject>() {
                                 @Override
@@ -90,9 +98,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
                                         if (jsonResultItems != null) {
                                             for (int i = 0; i < jsonResultItems.length(); i++) {
-                                                RepositoryData entry = JSONUtil.parseJSONToRepository(jsonResultItems.getJSONObject(i));
+                                                RepositoryData entry = new RepositoryData(jsonResultItems.getJSONObject(i));
 
-                                                if (entry != null) {
+                                                if (entry.getId() > -1) {
                                                     mRepositoryListing.add(entry);
                                                 }
                                             }
@@ -106,31 +114,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                                     updateEmptyView();
                                     progressDialog.dismiss();
                                 }
-                            }, new Response.ErrorListener() {
-                        @Override
-                        public void onErrorResponse(VolleyError error) {
-                            try {
-                                // usually, if there are any client errors, github will send response with a message about what went wrong
-                                // see https://developer.github.com/v3/#client-errors
-                                if ((error != null) && (error.networkResponse != null) && (error.networkResponse.data != null)) {
-                                    // check if both response and message are supplied
-                                    JSONObject errorResponse = new JSONObject(new String(error.networkResponse.data));
-                                    Toast.makeText(getApplicationContext(), String.valueOf(error.networkResponse.statusCode) + ": " + errorResponse.getString("message"), Toast.LENGTH_LONG).show();
-                                } else { // otherwise show generic error message
-                                    Toast.makeText(getApplicationContext(), R.string.error_fetching_data, Toast.LENGTH_LONG).show();
-                                }
-                            } catch (JSONException e) {
-                                e.printStackTrace();
-
-                                // show generic error message if network response could not get parsed as json-object
-                                Toast.makeText(getApplicationContext(), R.string.error_fetching_data, Toast.LENGTH_LONG).show();
-                            }
-
-                            mRepositoryAdapter.notifyDataSetChanged();
-                            updateEmptyView();
-                            progressDialog.dismiss();
-                        }
-                    });
+                            }, this);
 
                     GitHubClient.getInstance(this).addToRequestQueue(repositoriesRequest);
                 }
@@ -144,5 +128,55 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         }else{
             mEmptyView.setVisibility(View.GONE);
         }
+    }
+
+    @Override
+    public void onItemClicked(RepositoryData repository) {
+        Intent repositoryIntent = new Intent(this, SubscribersActivity.class);
+        repositoryIntent.putExtra("repository_id", repository.getId());
+        startActivity(repositoryIntent);
+
+    }
+
+    @Override
+    public void onErrorResponse(VolleyError error) {
+        new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                try {
+                    // usually, if there are any client errors, GitHub will send response with a message about what went wrong
+                    // see https://developer.github.com/v3/#client-errors
+                    if ((error != null) && (error.networkResponse != null) && (error.networkResponse.data != null)) {
+                        // check if both response and message are supplied
+                        JSONObject errorResponse = new JSONObject(new String(error.networkResponse.data));
+                        Toast.makeText(getApplicationContext(), String.valueOf(error.networkResponse.statusCode) + ": " + errorResponse.getString("message"), Toast.LENGTH_LONG).show();
+                    } else { // otherwise show generic error message
+                        Toast.makeText(getApplicationContext(), R.string.error_fetching_data, Toast.LENGTH_LONG).show();
+                    }
+                } catch (JSONException e) {
+                    e.printStackTrace();
+
+                    // show generic error message if network response could not get parsed as json-object
+                    Toast.makeText(getApplicationContext(), R.string.error_fetching_data, Toast.LENGTH_LONG).show();
+                }
+
+                mRepositoryAdapter.notifyDataSetChanged();
+                updateEmptyView();
+                progressDialog.dismiss();
+            }
+        };
+    }
+
+    @Override
+    public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
+        boolean handled = false;
+
+        if (v.getId() == R.id.search_field) {
+            if (actionId == EditorInfo.IME_ACTION_DONE) {
+                mSearchRepositories.performClick();
+                handled = true;
+            }
+        }
+        return handled;
     }
 }

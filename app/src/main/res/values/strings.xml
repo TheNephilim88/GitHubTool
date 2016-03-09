@@ -2,7 +2,7 @@
     <string name="app_name">GitHub Tool</string>
     <string name="search_hint">Search repositories…</string>
     <string name="empty_list_hint">No entries yet</string>
-    <string name="loading_indicator">Loading data...</string>
+    <string name="loading_indicator">Loading data…</string>
     <string name="error_parsing_json">An error occurred while parsing JSON data</string>
     <string name="error_fetching_data">An error occurred while fetching data</string>
     <string name="error_no_internet_connection">Not connected to the internet. Aborting.</string>
@@ -11,4 +11,7 @@
     <string name="repo_description">Description: %1$s</string>
     <string name="repo_forks">Forks: %1$s</string>
     <string name="title_activity_repository">RepositoryActivity</string>
+
+    <string name="subscriber_count">Subscribers: %1$s</string>
+    <string name="subscriber_name">Subscriber: %1$s</string>
 </resources>

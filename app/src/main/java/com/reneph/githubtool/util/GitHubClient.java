@@ -15,7 +15,7 @@ import com.android.volley.toolbox.Volley;
 public class GitHubClient {
     private static GitHubClient mInstance;
     private RequestQueue mRequestQueue;
-    private ImageLoader mImageLoader;
+    private final ImageLoader mImageLoader;
     private static Context mCtx;
 
     private GitHubClient(Context context){
@@ -46,7 +46,7 @@ public class GitHubClient {
         return mInstance;
     }
 
-    public RequestQueue getRequestQueue() {
+    private RequestQueue getRequestQueue() {
         if (mRequestQueue == null) {
             // getApplicationContext() is key, it keeps you from leaking the
             // Activity or BroadcastReceiver if someone passes one in.

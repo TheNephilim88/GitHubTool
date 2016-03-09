@@ -2,7 +2,6 @@
 <android.support.design.widget.CoordinatorLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
@@ -23,52 +22,30 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
-            android:paddingLeft="@dimen/Keyline_1"
-            android:paddingRight="@dimen/Keyline_1">
+            android:paddingLeft="@dimen/Keyline_2"
+            android:paddingRight="@dimen/Keyline_2">
 
             <TextView
+                android:id="@+id/header_subscribers"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="@string/app_name"
                 android:textSize="@dimen/TextSize_Body1"/>
 
-            <LinearLayout
+            <TextView
+                android:id="@+id/header_repository"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="horizontal">
-
-                <EditText
-                    android:id="@+id/search_field"
-                    style="@style/ExtendedHeader_EditText_Style"
-                    android:singleLine="true"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:hint="@string/search_hint"
-                    android:imeOptions="actionDone"
-                    android:inputType="text"/>
-
-                <ImageButton
-                    android:id="@+id/search_repositories"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="center_vertical"
-                    android:background="@null"
-                    android:src="@drawable/ic_action_action_search"
-                    tools:ignore="ContentDescription"/>
-            </LinearLayout>
+                android:textSize="@dimen/TextSize_Headline"/>
         </LinearLayout>
-
     </android.support.design.widget.AppBarLayout>
 
     <android.support.v7.widget.RecyclerView
-        android:id="@+id/list_repositories"
+        android:id="@+id/list_subscribers"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         app:layout_behavior="@string/appbar_scrolling_view_behavior"/>
 
     <TextView
-        app:layout_behavior="@string/appbar_scrolling_view_behavior"
         android:id="@android:id/empty"
         style="@style/App_Font"
         android:layout_width="match_parent"

@@ -19,12 +19,18 @@ import java.util.List;
  * Created by Robert on 09.03.2016.
  */
 public class RepositoryAdapter extends RecyclerView.Adapter<RepositoryAdapter.ViewHolder> {
-    private Context mCtx;
-    private List<RepositoryData> items;
+    private final Context mCtx;
+    private final List<RepositoryData> items;
+    private final OnItemClickListener onItemClickListener;
 
-    public RepositoryAdapter(List<RepositoryData> data, Context context) {
+    public interface OnItemClickListener{
+        void onItemClicked(RepositoryData repository);
+    }
+
+    public RepositoryAdapter(List<RepositoryData> data, Context context, OnItemClickListener listener) {
         items = data;
         mCtx = context;
+        onItemClickListener = listener;
     }
 
     @Override
@@ -34,9 +40,9 @@ public class RepositoryAdapter extends RecyclerView.Adapter<RepositoryAdapter.Vi
             holder.mRepositoryDescription.setText(String.format(mCtx.getString(R.string.repo_description), items.get(position).getRepositoryDescription()));
             holder.mRepositoryForks.setText(String.format(mCtx.getString(R.string.repo_forks), items.get(position).getForks()));
 
-            if(!items.get(position).getImageURI().equals("")) {
+            if(!items.get(position).getOwner().getAvatarUrl().equals("")) {
                 ImageLoader imageLoader = GitHubClient.getInstance(mCtx).getImageLoader();
-                holder.mOwnerAvatar.setImageUrl(items.get(position).getImageURI(), imageLoader);
+                holder.mAvatar.setImageUrl(items.get(position).getOwner().getAvatarUrl(), imageLoader);
             }
         }
     }
@@ -50,22 +56,31 @@ public class RepositoryAdapter extends RecyclerView.Adapter<RepositoryAdapter.Vi
         return items.size();
     }
 
-    public static class ViewHolder extends RecyclerView.ViewHolder {
-        public NetworkImageView mOwnerAvatar;
-        public TextView mRepositoryName;
-        public TextView mRepositoryDescription;
-        public TextView mRepositoryForks;
+    public class ViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
+        public final NetworkImageView mAvatar;
+        public final TextView mRepositoryName;
+        public final TextView mRepositoryDescription;
+        public final TextView mRepositoryForks;
 
         public ViewHolder(View itemView) {
             super(itemView);
 
-            mOwnerAvatar = (NetworkImageView) itemView.findViewById(R.id.owner_avatar);
-            mOwnerAvatar.setErrorImageResId(R.drawable.avatar_placeholder_error);
-            mOwnerAvatar.setDefaultImageResId(R.drawable.avatar_placeholder);
+            mAvatar = (NetworkImageView) itemView.findViewById(R.id.avatar);
+            mAvatar.setErrorImageResId(R.drawable.avatar_placeholder_error);
+            mAvatar.setDefaultImageResId(R.drawable.avatar_placeholder);
 
             mRepositoryName = (TextView) itemView.findViewById(R.id.repository_name);
             mRepositoryDescription = (TextView) itemView.findViewById(R.id.repository_description);
             mRepositoryForks = (TextView) itemView.findViewById(R.id.repository_forks);
+
+            itemView.setOnClickListener(this);
+        }
+
+        @Override
+        public void onClick(View v) {
+            if((onItemClickListener != null) && (getLayoutPosition() < items.size())){
+                onItemClickListener.onItemClicked(items.get(getLayoutPosition()));
+            }
         }
     }
 
