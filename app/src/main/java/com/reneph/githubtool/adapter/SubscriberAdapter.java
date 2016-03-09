@@ -51,8 +51,6 @@ public class SubscriberAdapter extends RecyclerView.Adapter<SubscriberAdapter.Vi
     public class ViewHolder extends RecyclerView.ViewHolder {
         public final NetworkImageView mAvatar;
         public final TextView mSubscriberName;
-     /*   public TextView mRepositoryDescription;
-        public TextView mRepositoryForks;*/
 
         public ViewHolder(View itemView) {
             super(itemView);
@@ -62,8 +60,6 @@ public class SubscriberAdapter extends RecyclerView.Adapter<SubscriberAdapter.Vi
             mAvatar.setDefaultImageResId(R.drawable.avatar_placeholder);
 
             mSubscriberName = (TextView) itemView.findViewById(R.id.subscriber_name);
-    /*        mRepositoryDescription = (TextView) itemView.findViewById(R.id.repository_description);
-            mRepositoryForks = (TextView) itemView.findViewById(R.id.repository_forks);*/
         }
     }
 
