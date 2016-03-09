@@ -40,13 +40,13 @@
                 <EditText
                     android:id="@+id/search_field"
                     style="@style/ExtendedHeader_EditText_Style"
-                    android:singleLine="true"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
                     android:hint="@string/search_hint"
                     android:imeOptions="actionDone"
-                    android:inputType="text"/>
+                    android:inputType="text"
+                    android:singleLine="true"/>
 
                 <ImageButton
                     android:id="@+id/search_repositories"
@@ -65,16 +65,16 @@
         android:id="@+id/list_repositories"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        android:background="?android:attr/windowBackground"
         app:layout_behavior="@string/appbar_scrolling_view_behavior"/>
 
     <TextView
-        app:layout_behavior="@string/appbar_scrolling_view_behavior"
         android:id="@android:id/empty"
         style="@style/App_Font"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_gravity="center_vertical"
-        android:gravity="center_horizontal"
+        android:layout_height="match_parent"
+        android:gravity="center_vertical|center_horizontal"
         android:text="@string/empty_list_hint"
-        android:visibility="gone"/>
+        android:visibility="gone"
+        app:layout_behavior="@string/appbar_scrolling_view_behavior"/>
 </android.support.design.widget.CoordinatorLayout>

@@ -44,6 +44,8 @@ public class SubscribersActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_subscribers);
 
+        getWindow().setBackgroundDrawable(null);
+
         setSupportActionBar((Toolbar)findViewById(R.id.toolbar));
         if(getSupportActionBar() != null) {
             getSupportActionBar().setHomeButtonEnabled(true);

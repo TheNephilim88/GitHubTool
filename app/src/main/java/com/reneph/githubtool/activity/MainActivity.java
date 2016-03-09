@@ -49,6 +49,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        getWindow().setBackgroundDrawable(null);
+
         mSearchField = (EditText) findViewById(R.id.search_field);
         mSearchField.setOnEditorActionListener(this);
 

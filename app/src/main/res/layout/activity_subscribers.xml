@@ -43,15 +43,15 @@
         android:id="@+id/list_subscribers"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        android:background="?android:attr/windowBackground"
         app:layout_behavior="@string/appbar_scrolling_view_behavior"/>
 
     <TextView
         android:id="@android:id/empty"
         style="@style/App_Font"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_gravity="center_vertical"
-        android:gravity="center_horizontal"
+        android:layout_height="match_parent"
+        android:gravity="center_vertical|center_horizontal"
         android:text="@string/empty_list_hint"
         android:visibility="gone"/>
 </android.support.design.widget.CoordinatorLayout>
