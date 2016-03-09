@@ -44,6 +44,9 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:background="?android:attr/windowBackground"
+        android:clipToPadding="false"
+        android:paddingBottom="@dimen/list_padding_top_bottom"
+        android:paddingTop="@dimen/list_padding_top_bottom"
         app:layout_behavior="@string/appbar_scrolling_view_behavior"/>
 
     <TextView

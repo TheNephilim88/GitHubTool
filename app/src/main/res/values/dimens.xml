@@ -8,4 +8,7 @@
 
     <dimen name="TextSize_Body1">14sp</dimen>
     <dimen name="TextSize_Headline">24sp</dimen>
+    <dimen name="list_padding_top_bottom">8dp</dimen>
+    <dimen name="item_height_three_lines">88dp</dimen>
+    <dimen name="item_height_one_line">56dp</dimen>
 </resources>
