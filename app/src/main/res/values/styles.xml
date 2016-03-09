@@ -1,0 +1,15 @@
+<resources>
+    <style name="App_Font">
+    </style>
+
+    <style name="ExtendedHeader_EditText_Style" parent="App_Font">
+        <item name="android:textAppearance">?android:textAppearanceMedium</item>
+        <item name="android:textStyle">normal</item>
+        <item name="android:textSize">@dimen/TextSize_Headline</item>
+        <item name="android:textColor">@android:color/white</item>
+        <item name="android:textColorHint">@android:color/darker_gray</item>
+        <item name="android:gravity">center_vertical</item>
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">wrap_content</item>
+    </style>
+</resources>
