@@ -30,7 +30,7 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-public class SubscribersActivity extends AppCompatActivity implements Response.ErrorListener {
+public class SubscribersActivity extends AppCompatActivity {
     private RecyclerView listSubscribers;
     private TextView mEmptyView;
     private TextView mHeaderRepository;
@@ -94,7 +94,7 @@ public class SubscribersActivity extends AppCompatActivity implements Response.E
                             mHeaderSubscribers.setText(String.format(getString(R.string.subscriber_count), mRepositoryData.getSubscribers()));
                             loadSubscribersData();
                         }
-                    }, this);
+                    }, mErrorListener);
 
             GitHubClient.getInstance(this).addToRequestQueue(repositoriesRequest);
         }
@@ -117,37 +117,34 @@ public class SubscribersActivity extends AppCompatActivity implements Response.E
 
                         progressDialog.dismiss();
                     }
-                }, this);
+                }, mErrorListener);
 
         GitHubClient.getInstance(getBaseContext()).addToRequestQueue(forksRequest);
     }
 
-    @Override
-    public void onErrorResponse(VolleyError error) {
-        new Response.ErrorListener() {
-            @Override
-            public void onErrorResponse(VolleyError error) {
-                try {
-                    // usually, if there are any client errors, GitHub will send response with a message about what went wrong
-                    // see https://developer.github.com/v3/#client-errors
-                    if ((error != null) && (error.networkResponse != null) && (error.networkResponse.data != null)) {
-                        // check if both response and message are supplied
-                        JSONObject errorResponse = new JSONObject(new String(error.networkResponse.data));
-                        Toast.makeText(getApplicationContext(), String.valueOf(error.networkResponse.statusCode) + ": " + errorResponse.getString("message"), Toast.LENGTH_LONG).show();
-                    } else { // otherwise show generic error message
-                        Toast.makeText(getApplicationContext(), R.string.error_fetching_data, Toast.LENGTH_LONG).show();
-                    }
-                } catch (JSONException e) {
-                    e.printStackTrace();
-
-                    // show generic error message if network response could not get parsed as json-object
+    Response.ErrorListener mErrorListener = new Response.ErrorListener() {
+        @Override
+        public void onErrorResponse(VolleyError error) {
+            try {
+                // usually, if there are any client errors, GitHub will send response with a message about what went wrong
+                // see https://developer.github.com/v3/#client-errors
+                if ((error != null) && (error.networkResponse != null) && (error.networkResponse.data != null)) {
+                    // check if both response and message are supplied
+                    JSONObject errorResponse = new JSONObject(new String(error.networkResponse.data));
+                    Toast.makeText(getApplicationContext(), String.valueOf(error.networkResponse.statusCode) + ": " + errorResponse.getString("message"), Toast.LENGTH_LONG).show();
+                } else { // otherwise show generic error message
                     Toast.makeText(getApplicationContext(), R.string.error_fetching_data, Toast.LENGTH_LONG).show();
                 }
+            } catch (JSONException e) {
+                e.printStackTrace();
 
-                progressDialog.dismiss();
+                // show generic error message if network response could not get parsed as json-object
+                Toast.makeText(getApplicationContext(), R.string.error_fetching_data, Toast.LENGTH_LONG).show();
             }
-        };
-    }
+
+            progressDialog.dismiss();
+        }
+    };
 
     private void updateEmptyView(){
         // show or hide empty-view regarding amount of items that are actually in the adapter

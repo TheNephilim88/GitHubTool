@@ -36,7 +36,7 @@ import org.json.JSONObject;
 import java.util.ArrayList;
 import java.util.List;
 
-public class MainActivity extends AppCompatActivity implements View.OnClickListener, RepositoryAdapter.OnItemClickListener, Response.ErrorListener, TextView.OnEditorActionListener {
+public class MainActivity extends AppCompatActivity implements View.OnClickListener, RepositoryAdapter.OnItemClickListener, TextView.OnEditorActionListener {
     private EditText mSearchField;
     private TextView mEmptyView;
     private List<RepositoryData> mRepositoryListing;
@@ -114,18 +114,18 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                                     updateEmptyView();
                                     progressDialog.dismiss();
                                 }
-                            }, this);
+                            }, mErrorListener);
 
                     GitHubClient.getInstance(this).addToRequestQueue(repositoriesRequest);
                 }
         }
     }
 
-    private void updateEmptyView(){
+    private void updateEmptyView() {
         // show or hide empty-view regarding amount of items that are actually in the adapter
-        if(mRepositoryAdapter.getItemCount() == 0){
+        if (mRepositoryAdapter.getItemCount() == 0) {
             mEmptyView.setVisibility(View.VISIBLE);
-        }else{
+        } else {
             mEmptyView.setVisibility(View.GONE);
         }
     }
@@ -138,34 +138,31 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     }
 
-    @Override
-    public void onErrorResponse(VolleyError error) {
-        new Response.ErrorListener() {
-            @Override
-            public void onErrorResponse(VolleyError error) {
-                try {
-                    // usually, if there are any client errors, GitHub will send response with a message about what went wrong
-                    // see https://developer.github.com/v3/#client-errors
-                    if ((error != null) && (error.networkResponse != null) && (error.networkResponse.data != null)) {
-                        // check if both response and message are supplied
-                        JSONObject errorResponse = new JSONObject(new String(error.networkResponse.data));
-                        Toast.makeText(getApplicationContext(), String.valueOf(error.networkResponse.statusCode) + ": " + errorResponse.getString("message"), Toast.LENGTH_LONG).show();
-                    } else { // otherwise show generic error message
-                        Toast.makeText(getApplicationContext(), R.string.error_fetching_data, Toast.LENGTH_LONG).show();
-                    }
-                } catch (JSONException e) {
-                    e.printStackTrace();
-
-                    // show generic error message if network response could not get parsed as json-object
+    Response.ErrorListener mErrorListener = new Response.ErrorListener() {
+        @Override
+        public void onErrorResponse(VolleyError error) {
+            try {
+                // usually, if there are any client errors, GitHub will send response with a message about what went wrong
+                // see https://developer.github.com/v3/#client-errors
+                if ((error != null) && (error.networkResponse != null) && (error.networkResponse.data != null)) {
+                    // check if both response and message are supplied
+                    JSONObject errorResponse = new JSONObject(new String(error.networkResponse.data));
+                    Toast.makeText(getApplicationContext(), String.valueOf(error.networkResponse.statusCode) + ": " + errorResponse.getString("message"), Toast.LENGTH_LONG).show();
+                } else { // otherwise show generic error message
                     Toast.makeText(getApplicationContext(), R.string.error_fetching_data, Toast.LENGTH_LONG).show();
                 }
+            } catch (JSONException e) {
+                e.printStackTrace();
 
-                mRepositoryAdapter.notifyDataSetChanged();
-                updateEmptyView();
-                progressDialog.dismiss();
+                // show generic error message if network response could not get parsed as json-object
+                Toast.makeText(getApplicationContext(), R.string.error_fetching_data, Toast.LENGTH_LONG).show();
             }
-        };
-    }
+
+            mRepositoryAdapter.notifyDataSetChanged();
+            updateEmptyView();
+            progressDialog.dismiss();
+        }
+    };
 
     @Override
     public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
