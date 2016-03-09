@@ -20,7 +20,7 @@ public class RepositoryData {
     private UserData owner = null;
     private final List<UserData> subscriberList = new ArrayList<>();
 
-    public RepositoryData(JSONObject object) {
+    public RepositoryData(JSONObject object) throws JSONException{
         subscriberList.clear();
 
         try {
@@ -39,6 +39,7 @@ public class RepositoryData {
         } catch (JSONException e) {
             e.printStackTrace();
             setId(-1);
+            throw e;
         }
     }
 
@@ -48,11 +49,13 @@ public class RepositoryData {
         for (int i = 0; i < objects.length(); i++) {
             try {
                 UserData subscriber = new UserData(objects.getJSONObject(i));
-                subscriberList.add(subscriber);
+
+                if (subscriber.getId() > -1) {
+                    subscriberList.add(subscriber);
+                }
             } catch (JSONException e) {
                 e.printStackTrace();
             }
-
         }
     }
 

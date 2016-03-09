@@ -11,7 +11,7 @@ public class UserData {
     private String avatar_url = "";
     private String name = "";
 
-    public UserData(JSONObject object){
+    public UserData(JSONObject object) throws JSONException{
         try {
             setId(object.getInt("id"));
             setName(object.getString("login"));
@@ -19,6 +19,7 @@ public class UserData {
         } catch (JSONException e) {
             e.printStackTrace();
             setId(-1);
+            throw e;
         }
     }
 

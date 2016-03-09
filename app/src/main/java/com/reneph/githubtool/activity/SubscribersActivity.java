@@ -89,7 +89,17 @@ public class SubscribersActivity extends AppCompatActivity {
                     new Response.Listener<JSONObject>() {
                         @Override
                         public void onResponse(JSONObject response) {
-                            mRepositoryData = new RepositoryData(response);
+                            try {
+                                mRepositoryData = new RepositoryData(response);
+                            } catch (JSONException e) {
+                                e.printStackTrace();
+
+                                progressDialog.dismiss();
+                                Toast.makeText(getApplicationContext(), R.string.error_parsing_json, Toast.LENGTH_LONG).show();
+                                finish();
+                                return;
+                            }
+
                             mHeaderRepository.setText(mRepositoryData.getRepositoryName());
                             mHeaderSubscribers.setText(String.format(getString(R.string.subscriber_count), mRepositoryData.getSubscribers()));
                             loadSubscribersData();
